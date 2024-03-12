@@ -42,16 +42,7 @@ class BookTableViewController: UITableViewController {
     // MARK: - Navigation
     
     @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
-//        guard let source = segue.source as? BookFormTableViewController,
-//            let book = source.book else {return}
-//        
-//        if let indexPath = tableView.indexPathForSelectedRow {
-//            books.remove(at: indexPath.row)
-//            books.insert(book, at: indexPath.row)
-//            tableView.deselectRow(at: indexPath, animated: true)
-//        } else {
-//            books.append(book)
-//        }
+
         guard segue.identifier == "saveUnwind",
                 let sourceViewController = segue.source as? BookFormTableViewController,
                 let book = sourceViewController.book else { return }
@@ -66,14 +57,15 @@ class BookTableViewController: UITableViewController {
             tableView.insertRows(at: [newIndexPath], with: .automatic)
         }
     }
-    
-    @IBSegueAction func editBook(_ coder: NSCoder, sender: Any?) -> BookFormTableViewController? {
-        guard let cell = sender as? UITableViewCell, let indexPath = tableView.indexPath(for: cell) else {
-            return nil
+
+    @IBSegueAction func addEditBook(_ coder: NSCoder, sender: Any?) -> BookFormTableViewController? {
+        if let cell = sender as? UITableViewCell, let indexPath = tableView.indexPath(for: cell) {
+            // Editing
+            let bookToEdit = books[indexPath.row]
+            return BookFormTableViewController(coder: coder, book: bookToEdit)
+        } else {
+            // Adding
+            return BookFormTableViewController(coder: coder, book: nil)
         }
-
-        let book = books[indexPath.row]
-
-        return BookFormTableViewController(coder: coder, book: book)
     }
 }

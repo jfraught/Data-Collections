@@ -65,7 +65,7 @@
                                     <outlet property="genreLabel" destination="fMu-8J-G81" id="rP6-1i-TJ5"/>
                                     <outlet property="pagesLabel" destination="B9x-FP-Llp" id="T1l-HV-8CW"/>
                                     <outlet property="titleLabel" destination="MNL-ex-G66" id="3dR-GE-sOs"/>
-                                    <segue destination="1mz-EP-Dss" kind="presentation" destinationCreationSelector="editBook:sender:" id="tOc-vb-lcT"/>
+                                    <segue destination="1mz-EP-Dss" kind="presentation" id="tOc-vb-lcT"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -262,7 +262,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="SUI-NN-SCh" kind="relationship" relationship="rootViewController" id="qq7-dc-uxy"/>
+                        <segue destination="SUI-NN-SCh" kind="relationship" relationship="rootViewController" destinationCreationSelector="addEditBook:sender:" id="qq7-dc-uxy"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kYx-Xa-3PD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -271,7 +271,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Bwn-Uy-L8J"/>
+        <segue reference="tOc-vb-lcT"/>
     </inferredMetricsTieBreakers>
     <resources>
         <systemColor name="systemBackgroundColor">
