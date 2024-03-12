@@ -15,6 +15,7 @@ class BookFormTableViewController: UITableViewController {
     @IBOutlet var authorTextField: UITextField!
     @IBOutlet var genreTextField: UITextField!
     @IBOutlet var lengthTextField: UITextField!
+    @IBOutlet var saveButton: UIBarButtonItem!
 
     init?(coder: NSCoder, book: Book?) {
         self.book = book
@@ -30,24 +31,42 @@ class BookFormTableViewController: UITableViewController {
         super.viewDidLoad()
 
         updateView()
+        updateSaveButtonState()
+    }
+
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard segue.identifier == "saveUnwind" else { return }
+
+        let title = titleTextField.text ?? ""
+        let author = authorTextField.text ?? ""
+        let genre = genreTextField.text ?? ""
+        let length = lengthTextField.text ?? ""
+
+        book = Book(title: title, author: author, genre: genre, length: length)
     }
 
     func updateView() {
-        guard let book = book else {return}
-
-        titleTextField.text = book.title
-        authorTextField.text = book.author
-        genreTextField.text = book.genre
-        lengthTextField.text = book.length
+        if let book {
+            titleTextField.text = book.title
+            authorTextField.text = book.author
+            genreTextField.text = book.genre
+            lengthTextField.text = book.length
+            title = "Edit Book"
+        } else {
+            title = "Add Book"
+        }
     }
 
-    @IBAction func saveButtonTapped(_ sender: Any) {
-        guard let title = titleTextField.text,
-            let author = authorTextField.text,
-            let genre = genreTextField.text,
-            let length = lengthTextField.text else {return}
+    func updateSaveButtonState() {
+        let titleText = titleTextField.text ?? ""
+        let authorText = authorTextField.text ?? ""
+        let genreText = genreTextField.text ?? ""
+        let lengthText = lengthTextField.text ?? ""
+        saveButton.isEnabled = !titleText.isEmpty && !authorText.isEmpty && !genreText.isEmpty && !lengthText.isEmpty
 
-        book = Book(title: title, author: author, genre: genre, length: length)
-        performSegue(withIdentifier: "UnwindToBookTable", sender: self)
+    }
+
+    @IBAction func textEditingChanged(_ sender: UITextField) {
+        updateSaveButtonState()
     }
 }

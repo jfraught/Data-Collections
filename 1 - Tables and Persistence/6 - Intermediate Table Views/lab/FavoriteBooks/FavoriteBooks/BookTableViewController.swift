@@ -9,12 +9,12 @@ class BookTableViewController: UITableViewController {
 
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 95.0
-
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
+        print("View Will Appear")
     }
 
     // MARK: - Table view data source
@@ -42,15 +42,28 @@ class BookTableViewController: UITableViewController {
     // MARK: - Navigation
     
     @IBAction func prepareForUnwind(segue: UIStoryboardSegue) {
-        guard let source = segue.source as? BookFormTableViewController,
-            let book = source.book else {return}
-        
-        if let indexPath = tableView.indexPathForSelectedRow {
-            books.remove(at: indexPath.row)
-            books.insert(book, at: indexPath.row)
-            tableView.deselectRow(at: indexPath, animated: true)
+//        guard let source = segue.source as? BookFormTableViewController,
+//            let book = source.book else {return}
+//        
+//        if let indexPath = tableView.indexPathForSelectedRow {
+//            books.remove(at: indexPath.row)
+//            books.insert(book, at: indexPath.row)
+//            tableView.deselectRow(at: indexPath, animated: true)
+//        } else {
+//            books.append(book)
+//        }
+        guard segue.identifier == "saveUnwind",
+                let sourceViewController = segue.source as? BookFormTableViewController,
+                let book = sourceViewController.book else { return }
+        print("Unwind")
+
+        if let selectedIndexPath = tableView.indexPathForSelectedRow {
+            books[selectedIndexPath.row] = book
+            tableView.reloadRows(at: [selectedIndexPath], with: .none)
         } else {
+            let newIndexPath = IndexPath(row: books.count, section: 0)
             books.append(book)
+            tableView.insertRows(at: [newIndexPath], with: .automatic)
         }
     }
     

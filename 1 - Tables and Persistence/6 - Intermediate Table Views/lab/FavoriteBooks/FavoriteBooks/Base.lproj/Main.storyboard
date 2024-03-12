@@ -65,7 +65,7 @@
                                     <outlet property="genreLabel" destination="fMu-8J-G81" id="rP6-1i-TJ5"/>
                                     <outlet property="pagesLabel" destination="B9x-FP-Llp" id="T1l-HV-8CW"/>
                                     <outlet property="titleLabel" destination="MNL-ex-G66" id="3dR-GE-sOs"/>
-                                    <segue destination="SUI-NN-SCh" kind="show" destinationCreationSelector="editBook:sender:" id="tOc-vb-lcT"/>
+                                    <segue destination="1mz-EP-Dss" kind="presentation" destinationCreationSelector="editBook:sender:" id="tOc-vb-lcT"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -77,7 +77,7 @@
                     <navigationItem key="navigationItem" title="Favorite Books" id="f0d-F9-JRK">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="gLf-vC-9w7">
                             <connections>
-                                <segue destination="SUI-NN-SCh" kind="show" id="Bwn-Uy-L8J"/>
+                                <segue destination="1mz-EP-Dss" kind="presentation" id="Bwn-Uy-L8J"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -107,7 +107,7 @@
             <objects>
                 <tableViewController id="SUI-NN-SCh" customClass="BookFormTableViewController" customModule="FavoriteBooks" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="uCN-eN-vbo">
-                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="834"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <sections>
@@ -124,6 +124,9 @@
                                                     <rect key="frame" x="20" y="9" width="350" height="34"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits"/>
+                                                    <connections>
+                                                        <action selector="textEditingChanged:" destination="SUI-NN-SCh" eventType="editingChanged" id="Jke-bs-PnP"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -148,6 +151,9 @@
                                                     <rect key="frame" x="20" y="9" width="350" height="34"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits"/>
+                                                    <connections>
+                                                        <action selector="textEditingChanged:" destination="SUI-NN-SCh" eventType="editingChanged" id="x4T-gh-CRd"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -172,6 +178,9 @@
                                                     <rect key="frame" x="20" y="9" width="350" height="34"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits"/>
+                                                    <connections>
+                                                        <action selector="textEditingChanged:" destination="SUI-NN-SCh" eventType="editingChanged" id="POY-zE-Qqn"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -196,6 +205,9 @@
                                                     <rect key="frame" x="20" y="9" width="350" height="34"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits"/>
+                                                    <connections>
+                                                        <action selector="textEditingChanged:" destination="SUI-NN-SCh" eventType="editingChanged" id="0vG-MT-NTY"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -207,51 +219,55 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection id="2bG-ii-6HI" userLabel="Save">
-                                <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="VYv-0d-rbn">
-                                        <rect key="frame" x="0.0" y="466.00000190734863" width="390" height="51.666667938232422"/>
-                                        <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="VYv-0d-rbn" id="jSJ-IE-HVm">
-                                            <rect key="frame" x="0.0" y="0.0" width="390" height="51.666667938232422"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J1d-wv-vXK">
-                                                    <rect key="frame" x="164.66666666666666" y="5.3333333333333321" width="61" height="41"/>
-                                                    <state key="normal" title="Button"/>
-                                                    <buttonConfiguration key="configuration" style="plain" title="Save"/>
-                                                    <connections>
-                                                        <action selector="saveButtonTapped:" destination="SUI-NN-SCh" eventType="touchUpInside" id="e4k-MF-YjO"/>
-                                                    </connections>
-                                                </button>
-                                            </subviews>
-                                            <constraints>
-                                                <constraint firstItem="J1d-wv-vXK" firstAttribute="centerX" secondItem="jSJ-IE-HVm" secondAttribute="centerX" id="87R-ur-fUc"/>
-                                                <constraint firstItem="J1d-wv-vXK" firstAttribute="centerY" secondItem="jSJ-IE-HVm" secondAttribute="centerY" id="K4S-HR-cmg"/>
-                                            </constraints>
-                                        </tableViewCellContentView>
-                                    </tableViewCell>
-                                </cells>
-                            </tableViewSection>
                         </sections>
                         <connections>
                             <outlet property="dataSource" destination="SUI-NN-SCh" id="agb-GT-dOT"/>
                             <outlet property="delegate" destination="SUI-NN-SCh" id="1GK-1z-gQg"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="fxL-pW-SaE"/>
+                    <navigationItem key="navigationItem" id="fxL-pW-SaE">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="eYK-kf-h90">
+                            <connections>
+                                <segue destination="QO5-mc-ovu" kind="unwind" unwindAction="prepareForUnwindWithSegue:" id="xpX-Fc-U5X"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="gjJ-8f-yPp">
+                            <connections>
+                                <segue destination="QO5-mc-ovu" kind="unwind" identifier="saveUnwind" unwindAction="prepareForUnwindWithSegue:" id="VFq-YU-Evx"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="authorTextField" destination="f8v-UG-bEw" id="9rK-ZW-UFp"/>
                         <outlet property="genreTextField" destination="Fns-Vp-uIf" id="91D-5x-y4N"/>
                         <outlet property="lengthTextField" destination="gB5-r5-ISq" id="PLl-W6-TKB"/>
+                        <outlet property="saveButton" destination="gjJ-8f-yPp" id="z7w-xx-c2v"/>
                         <outlet property="titleTextField" destination="rgJ-9J-n7W" id="ueO-QE-8Mn"/>
-                        <segue destination="QO5-mc-ovu" kind="unwind" identifier="UnwindToBookTable" unwindAction="prepareForUnwindWithSegue:" id="y4L-YM-avM"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GlQ-i9-s3Z" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="QO5-mc-ovu" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="911" y="365"/>
+            <point key="canvasLocation" x="1840" y="364.69194312796208"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="gjm-BN-AYs">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="1mz-EP-Dss" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" id="1xC-yq-ArN"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="IuN-zM-6aV">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="56"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="SUI-NN-SCh" kind="relationship" relationship="rootViewController" id="qq7-dc-uxy"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kYx-Xa-3PD" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="910.76923076923072" y="364.69194312796208"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
