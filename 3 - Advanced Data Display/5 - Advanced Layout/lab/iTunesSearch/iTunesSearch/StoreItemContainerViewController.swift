@@ -6,25 +6,24 @@ class StoreItemContainerViewController: UIViewController, UISearchResultsUpdatin
     
     @IBOutlet var tableContainerView: UIView!
     @IBOutlet var collectionContainerView: UIView!
+    weak var collectionViewController: StoreItemCollectionViewController?
     
     let searchController = UISearchController()
     let storeItemController = StoreItemController()
     
-    var tableViewDataSource: UITableViewDiffableDataSource<String, StoreItem.ID>!
+    var tableViewDataSource: StoreItemTableViewDiffableDataSource!
     var collectionViewDataSource: UICollectionViewDiffableDataSource<String, StoreItem.ID>!
 
     var items = [StoreItem]()
     
-    var itemIdentifiersSnapshot: NSDiffableDataSourceSnapshot<String, StoreItem.ID> {
-        var snapshot = NSDiffableDataSourceSnapshot<String, StoreItem.ID>()
-        
-        snapshot.appendSections(["Results"])
-        snapshot.appendItems(items.map { $0.id })
-        
-        return snapshot
-    }
+    var itemIdentifiersSnapshot = NSDiffableDataSourceSnapshot<String, StoreItem.ID>()
 
-    let queryOptions = ["movie", "music", "software", "ebook"]
+    var selectedSearchScope: SearchScope {
+        let selecetedIndex = searchController.searchBar.selectedScopeButtonIndex
+        let searchScope = SearchScope.allCases[selecetedIndex]
+        
+        return searchScope
+    }
     
     // keep track of async tasks so they can be cancelled if appropriate.
     var searchTask: Task<Void, Never>? = nil
@@ -39,7 +38,7 @@ class StoreItemContainerViewController: UIViewController, UISearchResultsUpdatin
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.automaticallyShowsSearchResultsController = true
         searchController.searchBar.showsScopeBar = true
-        searchController.searchBar.scopeButtonTitles = ["Movies", "Music", "Apps", "Books"]
+        searchController.searchBar.scopeButtonTitles = SearchScope.allCases.map { $0.title }
     }
     
     func updateSearchResults(for searchController: UISearchController) {
@@ -58,12 +57,13 @@ class StoreItemContainerViewController: UIViewController, UISearchResultsUpdatin
         }
         
         if let collectionViewController = segue.destination as? StoreItemCollectionViewController {
+            collectionViewController.configureCollectionViewLayout(for: selectedSearchScope)
             configureCollectionViewDataSource(collectionViewController.collectionView)
         }
     }
 
     func configureTableViewDataSource(_ tableView: UITableView) {
-        tableViewDataSource = UITableViewDiffableDataSource(tableView: tableView, cellProvider: { [weak self] tableView, indexPath, itemIdentifier in
+        tableViewDataSource = StoreItemTableViewDiffableDataSource(tableView: tableView, cellProvider: { [weak self] tableView, indexPath, itemIdentifier in
             guard let self,
                   let item = items.first(where: { $0.id == itemIdentifier }) else {
                 return nil
@@ -126,14 +126,30 @@ class StoreItemContainerViewController: UIViewController, UISearchResultsUpdatin
         collectionViewDataSource = UICollectionViewDiffableDataSource<String, StoreItem.ID>(collectionView: collectionView) { (collectionView, indexPath, identifier) -> UICollectionViewCell? in
             collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: identifier)
         }
+        
+        let headerRegistration = UICollectionView.SupplementaryRegistration<StoreItemCollectionViewSectionHeader>(elementKind: "Header") { [weak self] headerView, elementKind, indexPath in
+            guard let self else { return }
+            
+            let title = itemIdentifiersSnapshot.sectionIdentifiers[indexPath.section]
+            headerView.setTitle(title)
+        }
+        collectionViewDataSource.supplementaryViewProvider = { collectionView, kind, indexPath -> UICollectionReusableView? in
+            return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
+        }
     }
 
     @objc func fetchMatchingItems() {
-        
+        itemIdentifiersSnapshot.deleteAllItems()
         self.items = []
                 
         let searchTerm = searchController.searchBar.text ?? ""
-        let mediaType = queryOptions[searchController.searchBar.selectedScopeButtonIndex]
+        
+        let searchScopes: [SearchScope]
+        if selectedSearchScope == .all {
+            searchScopes = [.movies, .music, .apps, .books]
+        } else {
+            searchScopes = [selectedSearchScope]
+        }
         
         // cancel any images that are still being fetched and reset the imageTask dictionaries
         collectionViewImageLoadTasks.values.forEach { task in task.cancel() }
@@ -145,36 +161,78 @@ class StoreItemContainerViewController: UIViewController, UISearchResultsUpdatin
         searchTask?.cancel()
         searchTask = Task {
             if !searchTerm.isEmpty {
-                
-                // set up query dictionary
-                let query = [
-                    "term": searchTerm,
-                    "media": mediaType,
-                    "lang": "en_us",
-                    "limit": "20"
-                ]
-            
                 do {
-                    // use the item controller to fetch items
-                    let items = try await storeItemController.fetchItems(matching: query)
-                    if searchTerm == self.searchController.searchBar.text &&
-                          mediaType == queryOptions[searchController.searchBar.selectedScopeButtonIndex] {
-                        self.items = items
-                    }
+                    try await fetchAndHandleItemsForSearchScopes(searchScopes, withSearchTerm: searchTerm)
                 } catch let error as NSError where error.domain == NSURLErrorDomain && error.code == NSURLErrorCancelled {
-                    // ignore cancellation errors
+                    // Ignore
                 } catch {
-                    // otherwise, print an error to the console
                     print(error)
                 }
-                // apply data source changes
-                await tableViewDataSource.apply(self.itemIdentifiersSnapshot, animatingDifferences: true)
-                await collectionViewDataSource.apply(self.itemIdentifiersSnapshot, animatingDifferences: true)
             } else {
                 await self.tableViewDataSource.apply(self.itemIdentifiersSnapshot, animatingDifferences: true)
                 await self.collectionViewDataSource.apply(self.itemIdentifiersSnapshot, animatingDifferences: true)
             }
-            searchTask = nil
         }
+        searchTask = nil
+    }
+    
+    func handleFetchedItems(_ items: [StoreItem]) async {
+        self.items += items
+        
+        itemIdentifiersSnapshot = createSectiondSnapshot(from: self.items)
+        
+        collectionViewController?.configureCollectionViewLayout(for: selectedSearchScope)
+        
+        await tableViewDataSource.apply(itemIdentifiersSnapshot, animatingDifferences: true)
+        await collectionViewDataSource.apply(itemIdentifiersSnapshot, animatingDifferences: true)
+    }
+    
+    func fetchAndHandleItemsForSearchScopes(_ searchScopes: [SearchScope], withSearchTerm searchTerm: String) async throws {
+        try await withThrowingTaskGroup(of: (SearchScope, [StoreItem]).self) { group in
+            for searchScope in searchScopes {
+                group.addTask {
+                    try Task.checkCancellation()
+                    // Set up query dictionary
+                    let query = [
+                        "term": searchTerm,
+                        "media": searchScope.mediaType,
+                        "lang": "en_us",
+                        "limit": "50"
+                    ]
+                    return (searchScope, try await self.storeItemController.fetchItems(matching: query))
+                }
+            }
+            for try await (searchScope, items) in group {
+                try Task.checkCancellation()
+                if searchTerm == self.searchController.searchBar.text &&
+                        (self.selectedSearchScope == .all || searchScope == self.selectedSearchScope) {
+                    await handleFetchedItems(items)
+                }
+            }
+        }
+    }
+    
+    func createSectiondSnapshot(from items: [StoreItem]) -> NSDiffableDataSourceSnapshot<String, StoreItem.ID> {
+        let movies = items.filter { $0.kind == "feature-movie" }
+        let music = items.filter { $0.kind == "song" || $0.kind == "album" }
+        let apps = items.filter { $0.kind == "software" }
+        let books = items.filter { $0.kind == "ebook" }
+        
+        let grouped: [(SearchScope, [StoreItem])] = [
+            (.movies, movies),
+            (.music, music),
+            (.apps, apps),
+            (.books, books)
+        ]
+        
+        var snapshot = NSDiffableDataSourceSnapshot<String, StoreItem.ID>()
+        grouped.forEach { (scope, items) in
+            if items.count > 0 {
+                snapshot.appendSections([scope.title])
+                snapshot.appendItems(items.map(\.id), toSection: scope.title)
+            }
+        }
+        
+        return snapshot
     }
 }

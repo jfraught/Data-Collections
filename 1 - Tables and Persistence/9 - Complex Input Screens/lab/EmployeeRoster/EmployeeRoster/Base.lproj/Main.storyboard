@@ -41,7 +41,7 @@
                                     </subviews>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <segue destination="SJN-k4-Vfz" kind="presentation" identifier="" id="HfC-1c-cmZ"/>
+                                    <segue destination="SJN-k4-Vfz" kind="presentation" identifier="" destinationCreationSelector="test:sender:" id="HfC-1c-cmZ"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>

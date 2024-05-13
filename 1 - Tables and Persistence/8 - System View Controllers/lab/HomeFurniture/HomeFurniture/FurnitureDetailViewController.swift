@@ -23,7 +23,6 @@ class FurnitureDetailViewController: UIViewController,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         updateView()
     }
     

@@ -21,6 +21,9 @@
 		5A6F900B24CF4D61004A1835 /* ItemCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A6F900A24CF4D61004A1835 /* ItemCollectionViewCell.swift */; };
 		5A98BFCD24CF83B900EBFD72 /* ItemDisplaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A98BFCC24CF83B900EBFD72 /* ItemDisplaying.swift */; };
 		96FA0D1F2AE0B5CC00C27EE4 /* ItemCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 96FA0D1E2AE0B5CC00C27EE4 /* ItemCollectionViewCell.xib */; };
+		A9DD20FB2BF1A03400E30B56 /* SearchScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9DD20FA2BF1A03400E30B56 /* SearchScope.swift */; };
+		A9DD20FD2BF1AA2400E30B56 /* StoreItemTableViewDiffableDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9DD20FC2BF1AA2400E30B56 /* StoreItemTableViewDiffableDataSource.swift */; };
+		A9DD20FF2BF1AB9000E30B56 /* StoreItemCollectionViewSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9DD20FE2BF1AB9000E30B56 /* StoreItemCollectionViewSectionHeader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +43,9 @@
 		5A6F900A24CF4D61004A1835 /* ItemCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCollectionViewCell.swift; sourceTree = "<group>"; };
 		5A98BFCC24CF83B900EBFD72 /* ItemDisplaying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItemDisplaying.swift; sourceTree = "<group>"; };
 		96FA0D1E2AE0B5CC00C27EE4 /* ItemCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ItemCollectionViewCell.xib; sourceTree = "<group>"; };
+		A9DD20FA2BF1A03400E30B56 /* SearchScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchScope.swift; sourceTree = "<group>"; };
+		A9DD20FC2BF1AA2400E30B56 /* StoreItemTableViewDiffableDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreItemTableViewDiffableDataSource.swift; sourceTree = "<group>"; };
+		A9DD20FE2BF1AB9000E30B56 /* StoreItemCollectionViewSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreItemCollectionViewSectionHeader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,11 +84,14 @@
 				18A6051E23CF9802002037CA /* SceneDelegate.swift */,
 				18A6053423CFABBB002037CA /* StoreItem.swift */,
 				5A98BFCC24CF83B900EBFD72 /* ItemDisplaying.swift */,
+				A9DD20FA2BF1A03400E30B56 /* SearchScope.swift */,
 				18A6053623CFABDC002037CA /* StoreItemController.swift */,
 				18A6053023CF9829002037CA /* StoreItemListTableViewController.swift */,
 				1812E9A223F36978009BBFA7 /* StoreItemCollectionViewController.swift */,
 				5A6F900A24CF4D61004A1835 /* ItemCollectionViewCell.swift */,
 				1812E9A023F35901009BBFA7 /* StoreItemContainerViewController.swift */,
+				A9DD20FE2BF1AB9000E30B56 /* StoreItemCollectionViewSectionHeader.swift */,
+				A9DD20FC2BF1AA2400E30B56 /* StoreItemTableViewDiffableDataSource.swift */,
 				18A6052523CF9803002037CA /* Assets.xcassets */,
 				18A6052723CF9803002037CA /* LaunchScreen.storyboard */,
 				96FA0D1E2AE0B5CC00C27EE4 /* ItemCollectionViewCell.xib */,
@@ -164,12 +173,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				18A6053323CF9ADA002037CA /* ItemTableViewCell.swift in Sources */,
+				A9DD20FB2BF1A03400E30B56 /* SearchScope.swift in Sources */,
 				1812E9A323F36978009BBFA7 /* StoreItemCollectionViewController.swift in Sources */,
 				5A6F900B24CF4D61004A1835 /* ItemCollectionViewCell.swift in Sources */,
 				18A6053523CFABBB002037CA /* StoreItem.swift in Sources */,
 				5A98BFCD24CF83B900EBFD72 /* ItemDisplaying.swift in Sources */,
+				A9DD20FF2BF1AB9000E30B56 /* StoreItemCollectionViewSectionHeader.swift in Sources */,
 				18A6053723CFABDC002037CA /* StoreItemController.swift in Sources */,
 				18A6053123CF9829002037CA /* StoreItemListTableViewController.swift in Sources */,
+				A9DD20FD2BF1AA2400E30B56 /* StoreItemTableViewDiffableDataSource.swift in Sources */,
 				18A6051D23CF9802002037CA /* AppDelegate.swift in Sources */,
 				18A6051F23CF9802002037CA /* SceneDelegate.swift in Sources */,
 				1812E9A123F35901009BBFA7 /* StoreItemContainerViewController.swift in Sources */,

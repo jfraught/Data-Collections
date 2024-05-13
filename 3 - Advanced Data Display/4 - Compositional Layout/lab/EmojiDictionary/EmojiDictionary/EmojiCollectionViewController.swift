@@ -2,6 +2,8 @@
 
 import UIKit
 
+private let headerKind = "header"
+
 class EmojiCollectionViewController: UICollectionViewController {
     @IBOutlet var layoutButton: UIBarButtonItem!
     
@@ -21,24 +23,159 @@ class EmojiCollectionViewController: UICollectionViewController {
         Emoji(symbol: "🏁", name: "Checkered Flag", description: "A black-and-white checkered flag.", usage: "completion")
     ]
     
+    enum Layout {
+        case grid
+        case column
+    }
+    
+    var layout: [Layout: UICollectionViewLayout] = [:]
+    
+    var activeLayout: Layout = .grid {
+        didSet {
+            if let layout = layout[activeLayout] {
+                var snapshot = collectionDataSource.snapshot()
+                let visibleIDs = collectionView.indexPathsForVisibleItems.compactMap {
+                    collectionDataSource.itemIdentifier(for: $0)
+                }
+                snapshot.reloadItems(visibleIDs)
+                collectionDataSource.apply(snapshot)
+                
+                collectionView.setCollectionViewLayout(layout, animated: true) { (_) in
+                    switch self.activeLayout {
+                    case .grid:
+                        self.layoutButton.image = UIImage(systemName: "rectangle.grid.1x2")
+                    case .column:
+                        self.layoutButton.image = UIImage(systemName: "square.grid.2x2")
+                    }
+                }
+            }
+        }
+    }
+    
     private var collectionDataSource: UICollectionViewDiffableDataSource<String, Emoji.ID>!
     private var emojiIdentifiersSnapshot: NSDiffableDataSourceSnapshot<String, Emoji.ID> {
         var snapshot = NSDiffableDataSourceSnapshot<String, Emoji.ID>()
         
-        snapshot.appendSections(["Main"])
-        snapshot.appendItems(emojis.sorted(by: { $0.name < $1.name }).map(\.id))
+        let grouped = Dictionary(grouping: emojis, by: { $0.sectionTitle })
+        
+        for (title, emojis) in grouped.sorted(by: { $0.0 < $1.0 }) {
+            snapshot.appendSections([title])
+            snapshot.appendItems(emojis.sorted(by: { $0.name < $1.name }).map(\.id))
+        }
         
         return snapshot
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        layout[.grid]   = generateGridLayout()
+        layout[.column] = generateColumnLayout()
+        
+        if let layout = layout[activeLayout] {
+            collectionView.collectionViewLayout = layout
+        }
+        
         configureDataSource()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         collectionDataSource.apply(emojiIdentifiersSnapshot, animatingDifferences: true)
+    }
+    
+    func generateColumnLayout() -> UICollectionViewLayout {
+        let padding: CGFloat = 10
+        
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .fractionalHeight(1)
+            )
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .absolute(120)
+            ),
+            subitem: item,
+            count: 1
+        )
+        
+        group.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: padding,
+            bottom: 0,
+            trailing: padding
+        )
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = padding
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: padding,
+            leading: 0,
+            bottom: padding,
+            trailing: 0
+        )
+        section.boundarySupplementaryItems = [generateHeader()]
+        
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+    
+    func generateGridLayout() -> UICollectionViewLayout {
+        let padding: CGFloat = 20
+        
+        let item = NSCollectionLayoutItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .fractionalHeight(1)
+            )
+        )
+        
+        let group = NSCollectionLayoutGroup.horizontal(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .fractionalHeight(1/4)
+            ),
+            subitem: item,
+            count: 2
+        )
+        group.interItemSpacing = .fixed(padding)
+        group.contentInsets = NSDirectionalEdgeInsets(
+            top: 0,
+            leading: padding,
+            bottom: 0,
+            trailing: padding
+        )
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = padding
+        section.contentInsets = NSDirectionalEdgeInsets(
+            top: padding,
+            leading: 0, 
+            bottom: padding,
+            trailing: 0
+        )
+        
+        section.boundarySupplementaryItems = [generateHeader()]
+        
+        return UICollectionViewCompositionalLayout(section: section)
+    }
+    
+    func generateHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
+        let header = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1),
+                heightDimension: .absolute(40)
+            ),
+            elementKind: headerKind,
+            alignment: .top
+        )
+        
+        header.pinToVisibleBounds = true
+
+        return header
     }
     
     func configureDataSource() {
@@ -62,11 +199,30 @@ class EmojiCollectionViewController: UICollectionViewController {
         
         collectionDataSource = UICollectionViewDiffableDataSource<String, Emoji.ID>(collectionView: collectionView) { [weak self] collectionView, indexPath, itemIdentifier in
             guard let self else { return nil }
-            return collectionView.dequeueConfiguredReusableCell(using: itemCellRegistration, for: indexPath, item: itemIdentifier)
+            let registration = activeLayout == .grid ? itemCellRegistration : columnItemCellRegistration
+            return collectionView.dequeueConfiguredReusableCell(using: registration, for: indexPath, item: itemIdentifier)
+        }
+        
+        // Header views
+        let headerRegistration = UICollectionView.SupplementaryRegistration<EmojiCollectionViewHeader>(elementKind: headerKind) { [weak self] supplementaryView, elementKind, indexPath in
+            guard let self else { return }
+            let snapshot = collectionDataSource.snapshot()
+            let sectionID = snapshot.sectionIdentifiers[indexPath.section]
+            
+            supplementaryView.titleLabel.text = sectionID
+        }
+        collectionDataSource.supplementaryViewProvider = { collectionView, elementKind, indexPath in
+            return collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
         }
     }
     
     @IBAction func switchLayouts(sender: UIBarButtonItem) {
+        switch activeLayout {
+        case .grid:
+            activeLayout = .column
+        case .column:
+            activeLayout = .grid
+        }
     }
 
     @IBSegueAction func addEmoji(_ coder: NSCoder, sender: Any?) -> AddEditEmojiTableViewController? {
@@ -77,6 +233,16 @@ class EmojiCollectionViewController: UICollectionViewController {
         guard segue.identifier == "saveUnwind",
             let sourceViewController = segue.source as? AddEditEmojiTableViewController,
             let emoji = sourceViewController.emoji else { return }
+        
+        if let i = emojis.firstIndex(where: { $0 == emoji }) {
+            emojis[i] = emoji
+            var snapshot = collectionDataSource.snapshot()
+            snapshot.reconfigureItems([emoji.id])
+            collectionDataSource.apply(emojiIdentifiersSnapshot, animatingDifferences: true)
+        } else {
+            emojis.append((emoji))
+            collectionDataSource.apply(emojiIdentifiersSnapshot, animatingDifferences: true)
+        }
     }
 
     // MARK: - UICollectionViewDelegate
@@ -110,5 +276,10 @@ class EmojiCollectionViewController: UICollectionViewController {
     }
 
     func deleteEmoji(at indexPath: IndexPath) {
+        guard let emojiID = collectionDataSource.itemIdentifier(for: indexPath) else { return }
+        
+        emojis.removeAll { $0.id == emojiID }
+        
+        collectionDataSource.apply(emojiIdentifiersSnapshot, animatingDifferences: true)
     }
 }
